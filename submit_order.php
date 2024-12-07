@@ -1,47 +1,49 @@
 <?php
-header('Content-Type: application/json');
+// Check if the request method is POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Set headers
+    header('Content-Type: application/json');
 
-// Validate and sanitize input
-$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
-$mobile = filter_input(INPUT_POST, 'mobile', FILTER_SANITIZE_STRING);
-$location = filter_input(INPUT_POST, 'location', FILTER_SANITIZE_STRING);
-$payment = filter_input(INPUT_POST, 'payment', FILTER_SANITIZE_STRING);
-$fuel_type = filter_input(INPUT_POST, 'fuel_type', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-$quantity = filter_input(INPUT_POST, 'quantity', FILTER_VALIDATE_FLOAT);
-$timestamp = filter_input(INPUT_POST, 'timestamp', FILTER_SANITIZE_STRING);
+    // Get POST data
+    $petrolQuantity = isset($_POST['petrolQuantity']) ? (float)$_POST['petrolQuantity'] : null;
+    $dieselQuantity = isset($_POST['dieselQuantity']) ? (float)$_POST['dieselQuantity'] : null;
+    $timestamp = isset($_POST['timestamp']) ? $_POST['timestamp'] : null;
 
-// Validate required fields
-if (!$username || !$mobile || !$location || !$payment || !$fuel_type || !$quantity || !$timestamp) {
-    echo json_encode(['success' => false, 'message' => 'All fields are required']);
-    exit;
-}
+    // Validate data
+    if ($petrolQuantity === null || $dieselQuantity === null || $timestamp === null) {
+        echo json_encode(['success' => false, 'message' => 'Invalid input data']);
+        exit;
+    }
 
-// Load existing data
-$jsonFile = 'orders.json';
-$orders = [];
-if (file_exists($jsonFile)) {
-    $orders = json_decode(file_get_contents($jsonFile), true);
-}
+    // Prepare data to write to JSON file
+    $orderData = [
+        'petrolQuantity' => $petrolQuantity,
+        'dieselQuantity' => $dieselQuantity,
+        'timestamp' => $timestamp
+    ];
 
-// Add new order
-$newOrder = [
-    'username' => $username,
-    'mobile' => $mobile,
-    'location' => $location,
-    'payment' => $payment,
-    'fuel_type' => $fuel_type,
-    'quantity' => $quantity,
-    'timestamp' => $timestamp,
-    'accepted' => false,
-    'outForDelivery' => false,
-    'delivered' => false
-];
+    // File path
+    $filePath = 'orders.json';
 
-$orders[] = $newOrder;
+    // Read existing data from JSON file
+    $existingData = [];
+    if (file_exists($filePath)) {
+        $jsonContent = file_get_contents($filePath);
+        $existingData = json_decode($jsonContent, true) ?? [];
+    }
 
-// Save updated data
-if (file_put_contents($jsonFile, json_encode($orders, JSON_PRETTY_PRINT))) {
-    echo json_encode(['success' => true]);
+    // Append new data
+    $existingData[] = $orderData;
+
+    // Write data back to JSON file
+    if (file_put_contents($filePath, json_encode($existingData, JSON_PRETTY_PRINT))) {
+        echo json_encode(['success' => true, 'message' => 'Order saved successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to save order']);
+    }
 } else {
-    echo json_encode(['success' => false, 'message' => 'Failed to save order']);
+    // Handle invalid request method
+    header('HTTP/1.1 405 Method Not Allowed');
+    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
+?>
