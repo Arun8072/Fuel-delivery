@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const petrolValue = document.getElementById('petrolValue');
     const dieselValue = document.getElementById('dieselValue');
     const orderStatus = document.getElementById('orderStatus');
-    const statusList = document.getElementById('statusList');
 
     function updateSliderStyle(slider, value) {
         const percent = (value - slider.min) / (slider.max - slider.min) * 100;
@@ -27,64 +26,47 @@ document.addEventListener('DOMContentLoaded', () => {
     dieselSlider.addEventListener('input', () => updateSliderValue(dieselSlider, dieselValue));
 
     // Form submission
-    // Update the form submission part in app.js
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    const formData = new FormData(form);
-    formData.append('timestamp', new Date().toISOString());
+        const formData = {
+            username: form.username.value,
+            mobile: form.mobile.value,
+            location: form.location.value,
+            payment: form.payment.value,
+            petrolQuantity: petrolSlider.value,
+            dieselQuantity: dieselSlider.value,
+            timestamp: new Date().toISOString()
+        };
 
-    try {
-        const response = await fetch('submit_order.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        if (result.success) {
-            form.reset();
-            orderStatus.classList.remove('hidden');
-            updateOrderStatus('statusSent');
-            pollOrderStatus();
-        } else {
-            throw new Error(result.message || 'Unknown error occurred');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert(`An error occurred while submitting the order: ${error.message}`);
-    }
-});
-
-    function updateOrderStatus(status) {
-        const statusElement = document.getElementById(status);
-        if (statusElement) {
-            statusElement.querySelector('span:first-child').classList.remove('bg-gray-300');
-            statusElement.querySelector('span:first-child').classList.add('bg-green-500');
-        }
-    }
-
-    async function pollOrderStatus() {
         try {
-            const response = await fetch('get_order_status.php');
+            const response = await fetch('submit_order.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
             if (response.ok) {
-                const status = await response.json();
-                if (status.accepted) updateOrderStatus('statusAccepted');
-                if (status.outForDelivery) updateOrderStatus('statusOutForDelivery');
-                if (status.delivered) {
-                    updateOrderStatus('statusDelivered');
-                    return; // Stop polling if delivered
+                const result = await response.json();
+                if (result.success) {
+                    form.reset();
+                    petrolSlider.value = 0;
+                    dieselSlider.value = 0;
+                    updateSliderValue(petrolSlider, petrolValue);
+                    updateSliderValue(dieselSlider, dieselValue);
+                    orderStatus.classList.remove('hidden');
+                    console.log('Order submitted successfully:', result.message);
+                } else {
+                    alert('Error submitting order: ' + result.message);
                 }
-                setTimeout(pollOrderStatus, 5000); // Poll every 5 seconds
             } else {
-                throw new Error('Network response was not ok.');
+                throw new Error('Failed to submit order. HTTP status: ' + response.status);
             }
         } catch (error) {
-            console.error('Error polling order status:', error);
+            console.error('Error:', error);
+            alert('An error occurred while submitting the order. Please try again.');
         }
-    }
+    });
 });
