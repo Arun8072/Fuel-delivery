@@ -27,44 +27,38 @@ document.addEventListener('DOMContentLoaded', () => {
     dieselSlider.addEventListener('input', () => updateSliderValue(dieselSlider, dieselValue));
 
     // Form submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // Update the form submission part in app.js
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        const formData = new FormData(form);
-        formData.append('timestamp', new Date().toISOString());
-        
-        // Add fuel quantities
-        formData.append('petrolQuantity', petrolSlider.value);
-        formData.append('dieselQuantity', dieselSlider.value);
+    const formData = new FormData(form);
+    formData.append('timestamp', new Date().toISOString());
 
-        try {
-            const response = await fetch('submit_order.php', {
-                method: 'POST',
-                body: formData
-            });
+    try {
+        const response = await fetch('submit_order.php', {
+            method: 'POST',
+            body: formData
+        });
 
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
-                    form.reset();
-                    petrolSlider.value = 0;
-                    dieselSlider.value = 0;
-                    updateSliderValue(petrolSlider, petrolValue);
-                    updateSliderValue(dieselSlider, dieselValue);
-                    orderStatus.classList.remove('hidden');
-                    updateOrderStatus('statusSent');
-                    pollOrderStatus();
-                } else {
-                    alert('Error submitting order: ' + result.message);
-                }
-            } else {
-                throw new Error('Network response was not ok.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while submitting the order. Please try again.');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
-    });
+
+        const result = await response.json();
+        if (result.success) {
+            form.reset();
+            orderStatus.classList.remove('hidden');
+            updateOrderStatus('statusSent');
+            pollOrderStatus();
+        } else {
+            throw new Error(result.message || 'Unknown error occurred');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`An error occurred while submitting the order: ${error.message}`);
+    }
+});
 
     function updateOrderStatus(status) {
         const statusElement = document.getElementById(status);
