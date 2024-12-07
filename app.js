@@ -26,9 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     dieselSlider.addEventListener('input', () => updateSliderValue(dieselSlider, dieselValue));
 
     // Form submission
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
 
+        // Collect form data into a JSON object
         const formData = {
             username: form.username.value,
             mobile: form.mobile.value,
@@ -39,34 +40,46 @@ document.addEventListener('DOMContentLoaded', () => {
             timestamp: new Date().toISOString()
         };
 
-        try {
-            const response = await fetch('submit_order.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
+        // Convert data to JSON format
+        const jsonData = JSON.stringify(formData);
 
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
+        // Create a new XMLHttpRequest object
+        const xhr = new XMLHttpRequest();
+
+        // Specify the request type and URL of the PHP file
+        xhr.open("POST", "submit_order.php", true);
+
+        // Set the request header to indicate JSON content
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        // Define a callback function to handle the response
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
                     form.reset();
                     petrolSlider.value = 0;
                     dieselSlider.value = 0;
                     updateSliderValue(petrolSlider, petrolValue);
                     updateSliderValue(dieselSlider, dieselValue);
                     orderStatus.classList.remove('hidden');
-                    console.log('Order submitted successfully:', result.message);
+                    console.log("Order submitted successfully:", response.message);
                 } else {
-                    alert('Error submitting order: ' + result.message);
+                    alert("Error submitting order: " + response.message);
                 }
             } else {
-                throw new Error('Failed to submit order. HTTP status: ' + response.status);
+                console.error("Error:", xhr.statusText);
+                alert("An error occurred while submitting the order. Please try again.");
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while submitting the order. Please try again.');
-        }
+        };
+
+        // Handle errors during the request
+        xhr.onerror = function () {
+            console.error("Request error.");
+            alert("Failed to send the request. Please check your connection.");
+        };
+
+        // Send the JSON data
+        xhr.send(jsonData);
     });
 });
