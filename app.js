@@ -81,5 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Send the JSON data
         xhr.send(jsonData);
+        console.log(jsonData);
     });
 });
