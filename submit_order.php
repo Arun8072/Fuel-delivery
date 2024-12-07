@@ -1,15 +1,20 @@
 <?php
 header('Content-Type: application/json');
 
-// Enable error logging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Disable error reporting for production
+error_reporting(0);
+ini_set('display_errors', 0);
 
-// Check if the request method is POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method Not Allowed']);
+// Function to send JSON response
+function send_json_response($success, $message = '', $data = null) {
+    $response = [
+        'success' => $success,
+        'message' => $message,
+    ];
+    if ($data !== null) {
+        $response['data'] = $data;
+    }
+    echo json_encode($response);
     exit;
 }
 
@@ -24,9 +29,7 @@ $timestamp = filter_input(INPUT_POST, 'timestamp', FILTER_SANITIZE_STRING);
 
 // Validate required fields
 if (!$username || !$mobile || !$location || !$payment || !$fuel_type || !$quantity || !$timestamp) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'All fields are required']);
-    exit;
+    send_json_response(false, 'All fields are required');
 }
 
 // Load existing data
@@ -34,16 +37,13 @@ $jsonFile = 'orders.json';
 $orders = [];
 if (file_exists($jsonFile)) {
     $jsonContent = file_get_contents($jsonFile);
-    if ($jsonContent === false) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to read orders file']);
-        exit;
-    }
-    $orders = json_decode($jsonContent, true);
-    if ($orders === null && json_last_error() !== JSON_ERROR_NONE) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to parse orders JSON']);
-        exit;
+    if ($jsonContent !== false) {
+        $orders = json_decode($jsonContent, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            send_json_response(false, 'Error reading existing orders');
+        }
+    } else {
+        send_json_response(false, 'Error reading orders file');
     }
 }
 
@@ -64,10 +64,8 @@ $newOrder = [
 $orders[] = $newOrder;
 
 // Save updated data
-if (file_put_contents($jsonFile, json_encode($orders, JSON_PRETTY_PRINT)) === false) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to save order']);
-    exit;
+if (file_put_contents($jsonFile, json_encode($orders, JSON_PRETTY_PRINT)) !== false) {
+    send_json_response(true, 'Order submitted successfully', $newOrder);
+} else {
+    send_json_response(false, 'Failed to save order');
 }
-
-echo json_encode(['success' => true]);
