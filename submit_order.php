@@ -2,7 +2,7 @@
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Set headers
-    header('Content-Type: application/json');
+   // header('Content-Type: application/json');
 
     // Get POST data
     $petrolQuantity = isset($_POST['petrolQuantity']) ? (float)$_POST['petrolQuantity'] : null;
