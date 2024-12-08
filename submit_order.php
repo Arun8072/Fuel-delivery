@@ -18,16 +18,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Validate required fields
-    if (isset($data['username'], $data['mobile'], $data['location'], $data['payment'], $data['petrolQuantity'], $data['dieselQuantity'], $data['timestamp'])) {
+    if (isset($data['username'], $data['mobile'], $data['location'], $data['payment'],$data['fuelType'], $data['petrolQuantity'], $data['dieselQuantity'], $data['timestamp'])) {
         // If validation passes, process the order
         $orderData = [
             'username' => $data['username'],
             'mobile' => $data['mobile'],
             'location' => $data['location'],
             'payment' => $data['payment'],
+            'fuelType' => $data['fuelType'],
             'petrolQuantity' => $data['petrolQuantity'],
             'dieselQuantity' => $data['dieselQuantity'],
             'timestamp' => $data['timestamp'],
+            'hasSent' => true,
+            'hasAccepted' => false,
+            'hasOutForDelivery' => false,
+            'hasDelivered' => false
         ];
 
         // Define the path to your JSON file

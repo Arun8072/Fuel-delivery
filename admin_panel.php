@@ -17,7 +17,8 @@
                     <th class="px-4 py-2">Location</th>
                     <th class="px-4 py-2">Payment</th>
                     <th class="px-4 py-2">Fuel Type</th>
-                    <th class="px-4 py-2">Quantity</th>
+                    <th class="px-4 py-2">Petrol Quantity</th>
+                    <th class="px-4 py-2">Diesel Quantity</th>
                     <th class="px-4 py-2">Timestamp</th>
                     <th class="px-4 py-2">Actions</th>
                 </tr>
@@ -37,15 +38,19 @@
                         echo "<td class='border px-4 py-2'>{$order['mobile']}</td>";
                         echo "<td class='border px-4 py-2'>{$order['location']}</td>";
                         echo "<td class='border px-4 py-2'>{$order['payment']}</td>";
-                        echo "<td class='border px-4 py-2'>" . implode(', ', $order['fuel_type']) . "</td>";
-                        echo "<td class='border px-4 py-2'>{$order['quantity']} L</td>";
+                        echo "<td class='border px-4 py-2'>" .$order['fuelType']. "</td>";
+                        echo "<td class='border px-4 py-2'>{$order['petrolQuantity']} L</td>";
+                        echo "<td class='border px-4 py-2'>{$order['dieselQuantity']} L</td>";
                         echo "<td class='border px-4 py-2'>{$order['timestamp']}</td>";
                         echo "<td class='border px-4 py-2'>";
-                        if (!$order['accepted']) {
-                            echo "<button onclick='updateStatus($index, \"accepted\")' class='bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded mr-2'>Accept</button>";
+                        if (!$order['hasAccepted']) {
+                            echo "<button onclick='updateStatus($index, \"hasAccepted\")' class='bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded mr-2'>Accept</button>";
                         }
-                        if ($order['accepted'] && !$order['outForDelivery']) {
-                            echo "<button onclick='updateStatus($index, \"outForDelivery\")' class='bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded'>Out for Delivery</button>";
+                        if ($order['hasAccepted'] && !$order['hasOutForDelivery']) {
+                            echo "<button onclick='updateStatus($index, \"hasOutForDelivery\")' class='bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded'>Out for Delivery</button>";
+                        }
+                        if ($order['hasAccepted'] && $order['hasOutForDelivery'] && !$order['hasDelivered']) {
+                            echo "<button onclick='updateStatus($index, \"hasDelivered\")' class='bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded'>Delivered</button>";
                         }
                         echo "</td>";
                         echo "</tr>";
