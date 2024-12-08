@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a web-based Fuel Delivery Service application that allows customers to order petrol or diesel for their vehicles and have it delivered to their location. The application includes a user-friendly frontend for customers to place orders and an admin panel for managing deliveries.
+This project is a web-based Fuel Delivery Service application that allows customers to order petrol or diesel in critical situation for their vehicles and have it delivered to their location which is delivered from the nearest petrol bunk of the company. The application includes a user-friendly frontend for customers to place orders and an admin panel for managing deliveries.
 
 ## Features
 
