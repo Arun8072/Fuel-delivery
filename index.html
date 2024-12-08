@@ -89,7 +89,7 @@
         }
 
         .status-dot.active {
-            background: var(--primary-color);
+            background: #6ACF65;
             box-shadow: 2px 2px 5px var(--shadow-color),
                        -2px -2px 5px var(--highlight-color);
         }
@@ -115,8 +115,14 @@
                 
                 <div>
                     <label for="location" class="block text-sm font-medium text-gray-600 mb-2">Current Location</label>
+                  <div class="flex">
                     <input type="text" id="location" name="location" required 
-                           class="neo-input w-full px-4 py-3 rounded-xl text-gray-700">
+                           class="neo-input w-full px-4 py-3 rounded-l-xl text-gray-700">
+                    <button type="button" id="getLocation" 
+                            class="neo-button px-4 py-3 rounded-r-xl text-primary-600 font-medium hover:text-primary-700 transition-colors">
+                        📍
+                    </button>
+                </div>
                 </div>
                 
                 <div>
@@ -187,10 +193,17 @@
             </form>
             
             <div id="orderStatus" class="mt-8 hidden">
+                   <!-- Confirmation and Delivery Messages -->
+    <p id="confirmationMessage" class="text-lg font-medium mb-2 text-green-600">
+        Your order has been placed successfully!
+    </p>
+    <p id="deliveryMessage" class="text-md text-gray-600 mb-4">
+        A delivery person will reach you soon.
+    </p>
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Order Status</h2>
                 <ul id="statusList" class="space-y-4">
                     <li id="statusSent" class="flex items-center space-x-3">
-                        <span class="status-dot w-4 h-4 rounded-full"></span>
+                        <span class="status-dot w-4 h-4 rounded-full active"></span>
                         <span class="text-gray-600">Order Sent</span>
                     </li>
                     <li id="statusAccepted" class="flex items-center space-x-3">
