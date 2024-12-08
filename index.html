@@ -115,14 +115,16 @@
                 
                 <div>
                     <label for="location" class="block text-sm font-medium text-gray-600 mb-2">Current Location</label>
-                  <div class="flex">
-                    <input type="text" id="location" name="location" required 
-                           class="neo-input w-full px-4 py-3 rounded-l-xl text-gray-700">
-                    <button type="button" id="getLocation" 
-                            class="neo-button px-4 py-3 rounded-r-xl text-primary-600 font-medium hover:text-primary-700 transition-colors">
-                        📍
-                    </button>
-                </div>
+                                   <div class="flex items-center">
+                        <input type="text" id="location" name="location" required 
+                               class="neo-input w-full px-4 py-3 rounded-xl text-gray-700" readonly>
+                        <button type="button" id="refreshLocation" 
+                                class="neo-button ml-2 px-4 py-3 rounded-xl text-primary-600 font-medium hover:text-primary-700 transition-colors">
+                           📍
+                        </button>
+                    </div>
+                    <p id="locationStatus" class="mt-1 text-sm text-gray-500"></p>
+                 
                 </div>
                 
                 <div>
